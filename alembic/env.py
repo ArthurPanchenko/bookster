@@ -5,9 +5,9 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.app.library.models import BookModel
-
-from src.app.core.db import Base
+from src.library.models import BookModel
+from src.auth.models import UserModel
+from src.core.db import Base
 
 
 # this is the Alembic Config object, which provides
