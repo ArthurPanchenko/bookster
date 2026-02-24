@@ -8,5 +8,5 @@ def get_hash(pswd: str):
     return hash_context.encrypt(pswd)
 
 
-def verify_hash(s: str, hash: str):
-    return hash_context.verify(s, hash)
+def verify_hash(plain: str, hash: str):
+    return hash_context.verify(plain, hash)

@@ -1,5 +1,5 @@
 class NotFoundException(Exception):
-    def __init__(self, model: str, id: int):
+    def __init__(self, model: str, id: int | str):
         self.model = model
         self.id = id
 
