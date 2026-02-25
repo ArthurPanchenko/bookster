@@ -28,3 +28,7 @@ def generate_jwt_token(payload: dict, expire_time=timedelta(days=1)):
 
 def generate_refresh_token():
     return secrets.token_urlsafe(32)
+
+
+def decode_jwt(token: str):
+    return jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])

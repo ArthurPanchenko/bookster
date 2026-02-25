@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.auth.dependecies import get_current_user
 from src.auth.repository import user_repository
 from src.auth.schemas import TokenReprSchema, UserCreateSchema, UserReprSchema
 from src.core.db import get_db
@@ -21,9 +22,6 @@ async def login(login_info: UserCreateSchema, session: AsyncSession = Depends(ge
     return await user_repository.login(login_info.model_dump(), session)
 
 
-@auth_router.get("/user/{username}", response_model=UserReprSchema)
-async def user_info(username: str, session: AsyncSession = Depends(get_db)):
-    user = await user_repository.get_user_by_username(username, session)
-    if not user:
-        raise HTTPException(status_code=404, detail="User no found")
+@auth_router.get("/me", response_model=UserReprSchema)
+async def user_info(user=Depends(get_current_user)):
     return user

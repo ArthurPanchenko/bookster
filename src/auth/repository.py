@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -35,28 +35,31 @@ class UserRepository:
 
         token = RefreshTokenModel(token=token, user_id=user_id)
         session.add(token)
-        await session.commit()
+        await session.flush()
         await session.refresh(token)
         return token
 
+    async def delete_refresh_token(self, user_id: int, session: AsyncSession):
+
+        stmt = delete(RefreshTokenModel).where(RefreshTokenModel.user_id == user_id)
+        await session.execute(stmt)
+
     async def login(self, login_data: dict, session: AsyncSession):
-        user = await self.get_user_by_username(login_data["username"], session)
+        async with session.begin():
+            user = await self.get_user_by_username(login_data["username"], session)
 
-        if not user:
-            raise NotFoundException("User", login_data["username"])
-        if not verify_hash(login_data["password"], user.password):
-            raise NotFoundException(
-                "User", login_data["username"]
-            )  # Exception - bad credentials
-        if user.refresh_token:
-            raise NotFoundException(
-                "User", login_data["username"]
-            )  # Exception - already loged in
+            if not user:
+                raise NotFoundException("User", login_data["username"])
+            if not verify_hash(login_data["password"], user.password):
+                raise NotFoundException(
+                    "User", login_data["username"]
+                )  # Exception - bad credentials
 
-        access_token = generate_jwt_token({"username": user.username})
-
-        refresh_token = generate_refresh_token()
-        await self.create_refresh_token(get_hash(refresh_token), user.id, session)
+            access_token = generate_jwt_token({"username": user.username})
+            refresh_token = generate_refresh_token()
+            if user.refresh_token:
+                await self.delete_refresh_token(user.id, session)
+            await self.create_refresh_token(get_hash(refresh_token), user.id, session)
 
         return {"access_token": access_token, "refresh_token": refresh_token}
 
