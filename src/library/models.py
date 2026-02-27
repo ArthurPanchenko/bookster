@@ -1,7 +1,15 @@
 from datetime import datetime
 
-from sqlalchemy import Computed, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import (
+    CheckConstraint,
+    Computed,
+    ForeignKey,
+    SmallInteger,
+    String,
+    Text,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
 
 from src.core.db import Base
@@ -25,4 +33,34 @@ class BookModel(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()
+    )
+
+    reviews: Mapped[list["ReviewModel"]] = relationship(
+        "ReviewModel",
+        back_populates="books",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+
+class ReviewModel(Base):
+    __tablename__ = "reviews"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    rating: Mapped[int] = mapped_column(SmallInteger)
+    text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    book_id: Mapped[int] = mapped_column(
+        ForeignKey("books.id", ondelete="CASCADE"), index=True
+    )
+
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+    book: Mapped[BookModel] = relationship(BookModel, back_populates="reviews")
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "book_id"),
+        CheckConstraint("rating BETWEEN 1 AND 10"),
     )

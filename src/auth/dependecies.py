@@ -20,7 +20,7 @@ async def get_current_user(
     decoded = decode_jwt(token)
 
     username = decoded["username"]
-    expire_at = decoded["expire_at"]
+    # expire_at = decoded["expire_at"]
 
     user = await user_repository.get_user_by_username(username, session)
 
