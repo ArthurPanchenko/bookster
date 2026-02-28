@@ -1,15 +1,24 @@
 from pydantic import BaseModel, Field
 
+from src.auth.schemas import UserReprSchema
 
-class BookCreateSchema(BaseModel):
+
+class BookSchema(BaseModel):
     title: str
     author: str
     external_id: str
-     
-    
 
-class BookRetrieveSchema(BookCreateSchema):
-    pass
+
+class ReviewReprShema(BaseModel):
+    model_config = {"from_attributes": True}
+    rating: int
+    text: str | None = None
+    user: UserReprSchema
+
+
+class BookRetrieveSchema(BookSchema):
+    model_config = {"from_attributes": True}
+    reviews: list[ReviewReprShema] = []
 
 
 class BookUpdateSchema(BaseModel):

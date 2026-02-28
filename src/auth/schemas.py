@@ -7,6 +7,7 @@ class UserCreateSchema(BaseModel):
 
 
 class UserReprSchema(BaseModel):
+    model_config = {"from_attributes": True}
     username: str
 
 

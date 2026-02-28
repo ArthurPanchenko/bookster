@@ -12,6 +12,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
 
+from src.auth.models import UserModel
 from src.core.db import Base
 
 
@@ -60,6 +61,7 @@ class ReviewModel(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     books: Mapped[BookModel] = relationship(BookModel, back_populates="reviews")
+    user: Mapped[UserModel] = relationship()
 
     __table_args__ = (
         UniqueConstraint("user_id", "book_id"),
