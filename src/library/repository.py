@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import NotFoundException
-from src.library.models import BookModel
+from src.library.models import BookModel, ReviewModel
 
 
 class BookRepository:
@@ -43,5 +43,21 @@ class BookRepository:
         await session.delete(book)
         await session.commit()
 
+    async def get_or_none_by_external_id(self, external_id: str, session: AsyncSession):
+        stmt = select(BookModel).where(BookModel.external_id == external_id)
+        book = (await session.execute(stmt)).scalar_one_or_none()
+        return book
+
+
+class ReviewRepository:
+    async def create_review(self, review_data: dict, session: AsyncSession):
+        review = ReviewModel(**review_data)
+
+        session.add(review)
+        await session.commit()
+        await session.refresh(review)
+        return review
+
 
 book_repository = BookRepository()
+review_respository = ReviewRepository()

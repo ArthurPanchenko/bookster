@@ -19,6 +19,7 @@ class BookModel(Base):
     __tablename__ = "books"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    external_id: Mapped[str] = mapped_column(String(128), index=True, unique=True)
     title: Mapped[str] = mapped_column(String(128))
     slug: Mapped[str] = mapped_column(
         String,
@@ -28,7 +29,7 @@ class BookModel(Base):
         unique=True,
         index=True,
     )
-    author_id: Mapped[str] = mapped_column(String(128))
+    author: Mapped[str] = mapped_column(String(128))
 
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -58,7 +59,7 @@ class ReviewModel(Base):
 
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
-    book: Mapped[BookModel] = relationship(BookModel, back_populates="reviews")
+    books: Mapped[BookModel] = relationship(BookModel, back_populates="reviews")
 
     __table_args__ = (
         UniqueConstraint("user_id", "book_id"),

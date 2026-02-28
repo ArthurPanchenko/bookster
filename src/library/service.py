@@ -13,13 +13,13 @@ async def search(q: str):
             data = (await resp.json()).get("items")
             if not data:
                 raise BookServiceError(404, "no search results")
-
             keys_ = ["authors", "categories", "description", "title"]
-            data = []
+            resp_data = []
             uniques = set()
-
+            
             for item in data:
                 volume = item.get("volumeInfo")
+                print(volume)
 
                 if not all(key in volume for key in keys_):
                     continue
@@ -30,11 +30,11 @@ async def search(q: str):
                 print(unique_check)
                 if unique_check not in uniques:
                     print(unique_check not in uniques)
-                    data.append(
+                    resp_data.append(
                         {"id": item["id"]} | {key: volume[key] for key in keys_}
                     )
                     uniques.add(unique_check)
-            return data
+            return resp_data
 
 
 async def get_book_by_id(id: str):
