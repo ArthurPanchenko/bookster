@@ -5,6 +5,8 @@ from src.core.db import Base
 
 
 class UserModel(Base):
+    """SQLalchemy user model"""
+    
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -17,6 +19,8 @@ class UserModel(Base):
 
 
 class RefreshTokenModel(Base):
+    """SQLalchemy refresh token model w/ FK to users"""
+    
     __tablename__ = "tokens"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)

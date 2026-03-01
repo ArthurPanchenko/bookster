@@ -17,6 +17,8 @@ from src.core.db import Base
 
 
 class BookModel(Base):
+    """SQLalchemy book model"""
+
     __tablename__ = "books"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -46,6 +48,8 @@ class BookModel(Base):
 
 
 class ReviewModel(Base):
+    """SQLalchemy review model w/ FK to books and users"""
+    
     __tablename__ = "reviews"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)

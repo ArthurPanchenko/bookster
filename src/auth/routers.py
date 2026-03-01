@@ -9,7 +9,7 @@ from src.core.db import get_db
 auth_router = APIRouter()
 
 
-@auth_router.post("/register", response_model=UserReprSchema)
+@auth_router.post("/register", response_model=UserReprSchema, description='Sign Up')
 async def create_user(
     user_data: UserCreateSchema, session: AsyncSession = Depends(get_db)
 ):
@@ -17,11 +17,11 @@ async def create_user(
     return user
 
 
-@auth_router.post("/login", response_model=TokenReprSchema)
+@auth_router.post("/login", response_model=TokenReprSchema, description='Login')
 async def login(login_info: UserCreateSchema, session: AsyncSession = Depends(get_db)):
     return await user_repository.login(login_info.model_dump(), session)
 
 
-@auth_router.get("/me", response_model=UserReprSchema)
+@auth_router.get("/me", response_model=UserReprSchema, description='User info. AUTH REQUIRED')
 async def user_info(user=Depends(get_current_user)):
     return user

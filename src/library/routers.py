@@ -17,7 +17,7 @@ from src.library.service import get_book_by_id, search
 book_router = APIRouter()
 
 
-@book_router.get("/search")
+@book_router.get("/search", description="Search book by title")
 async def external_search(q: str):
     try:
         response = await search(q)
@@ -26,7 +26,7 @@ async def external_search(q: str):
     return response
 
 
-@book_router.get("/search/{book_id}")
+@book_router.get("/search/{book_id}", description="Get book by external id")
 async def book_detail_by_external_id(
     book_id: str, session: AsyncSession = Depends(get_db)
 ):
@@ -46,7 +46,10 @@ async def book_detail_by_external_id(
         return BookRetrieveSchema.model_validate(book)
 
 
-@book_router.post("/search/{book_external_id}/reviews")
+@book_router.post(
+    "/search/{book_external_id}/reviews",
+    description="Create review to book by external id. AUTH REQUIRED",
+)
 async def create_review(
     book_external_id: str,
     review_data: ReviewCreateSchema,
@@ -75,6 +78,10 @@ async def create_review(
     return review
 
 
-@book_router.get("/books/", response_model=List[BookRetrieveSchema])
+@book_router.get(
+    "/books/",
+    response_model=List[BookRetrieveSchema],
+    description="Get all local-saved books",
+)
 async def list_books(session: AsyncSession = Depends(get_db)):
     return await book_repository.get_all_books(session)

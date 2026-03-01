@@ -24,6 +24,15 @@ class BookRepository:
             raise NotFoundException("Book", id)
         return book
 
+    async def get_or_none_by_external_id(self, external_id: str, session: AsyncSession):
+        stmt = (
+            select(BookModel)
+            .where(BookModel.external_id == external_id)
+            .options(selectinload(BookModel.reviews).selectinload(ReviewModel.user))
+        )
+        book = (await session.execute(stmt)).scalar_one_or_none()
+        return book
+
     async def get_all_books(self, session: AsyncSession):
         res = await session.execute(
             select(BookModel).options(
@@ -47,15 +56,6 @@ class BookRepository:
 
         await session.delete(book)
         await session.commit()
-
-    async def get_or_none_by_external_id(self, external_id: str, session: AsyncSession):
-        stmt = (
-            select(BookModel)
-            .where(BookModel.external_id == external_id)
-            .options(selectinload(BookModel.reviews).selectinload(ReviewModel.user))
-        )
-        book = (await session.execute(stmt)).scalar_one_or_none()
-        return book
 
 
 class ReviewRepository:
