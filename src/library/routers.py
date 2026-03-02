@@ -1,11 +1,14 @@
+import json
 from typing import List
 
+import redis.asyncio as redis
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.dependecies import get_current_user
 from src.core.db import get_db
 from src.core.exceptions import BookServiceError
+from src.core.redis_client import get_redis
 from src.library.repository import book_repository, review_respository
 from src.library.schemas import (
     BookRetrieveSchema,
@@ -28,8 +31,14 @@ async def external_search(q: str):
 
 @book_router.get("/search/{book_id}", description="Get book by external id")
 async def book_detail_by_external_id(
-    book_id: str, session: AsyncSession = Depends(get_db)
+    book_id: str,
+    session: AsyncSession = Depends(get_db),
+    redis_client: redis.Redis = Depends(get_redis),
 ):
+
+    cached = await redis_client.get(book_id)
+    if cached:
+        return json.loads(cached)
 
     book = await book_repository.get_or_none_by_external_id(book_id, session)
     if book is None:
@@ -43,7 +52,10 @@ async def book_detail_by_external_id(
             author=response["authors"][0],
         )
     else:
-        return BookRetrieveSchema.model_validate(book)
+        book = BookRetrieveSchema.model_validate(book)
+        book_dict = book.model_dump_json()
+        await redis_client.set(book_id, book_dict)
+        return book
 
 
 @book_router.post(
@@ -84,4 +96,5 @@ async def create_review(
     description="Get all local-saved books",
 )
 async def list_books(session: AsyncSession = Depends(get_db)):
+
     return await book_repository.get_all_books(session)
