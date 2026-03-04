@@ -1,18 +1,31 @@
+import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
-from src.library.models import BookModel
 from src.auth.models import UserModel
 from src.core.db import Base
-
+from src.library.models import BookModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+#
+
 config = context.config
+
+
+def build_db_url_sync() -> str:
+    user = os.environ["DB_USER"]
+    password = os.environ["DB_PASS"]
+    host = os.environ.get("DB_HOST", "db")  # в compose обычно db
+    port = os.environ.get("DB_PORT", "5432")
+    name = os.environ["DB_NAME"]
+    return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{name}"
+
+
+config.set_main_option("sqlalchemy.url", build_db_url_sync())
+print("ALEMBIC sqlalchemy.url =", config.get_main_option("sqlalchemy.url"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -69,9 +82,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

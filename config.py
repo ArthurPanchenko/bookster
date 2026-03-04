@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     DB_NAME: str = Field(default=...)
 
     JWT_SECRET: str = Field(default=...)
+    
+    REDIS_HOST: str = Field(default=...)
+    REDIS_PORT: int = Field(default=...)
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

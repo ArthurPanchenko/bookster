@@ -3,9 +3,9 @@ from sqlalchemy.orm import declarative_base
 
 from config import settings
 
-engine = create_async_engine(
-    f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASS}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
-)
+
+DSN = f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASS}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+engine = create_async_engine(DSN)
 
 local_session = async_sessionmaker(bind=engine, expire_on_commit=False)
 
