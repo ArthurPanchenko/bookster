@@ -59,7 +59,7 @@ async def book_detail_by_external_id(
 
 
 @book_router.post(
-    "/search/{book_external_id}/reviews",
+    "/search/{book_external_id}/",
     description="Create review to book by external id. AUTH REQUIRED",
 )
 async def create_review(
